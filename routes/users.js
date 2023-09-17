@@ -32,9 +32,9 @@ router.post("/", async (req, res) => {
     passwordHash: bcrypt.hashSync(req.body.password, 10),
     phone: req.body.phone,
     isAdmin: req.body.isAdmin,
-    userType: req.body.userType,
     birthday: req.body.birthday,
     interest: req.body.interest,
+    preference: req.body.preference,
     goal: req.body.goal,
     level: req.body.level,
     created: req.body.created,
@@ -63,10 +63,10 @@ router.put("/:id", async (req, res) => {
       email: req.body.email,
       passwordHash: newPassword,
       phone: req.body.phone,
-      userType: req.body.userType,
       isAdmin: req.body.isAdmin,
       birthday: req.body.birthday,
       interest: req.body.interest,
+      preference: req.body.preference,
       goal: req.body.goal,
       level: req.body.level,
       created: req.body.created,
@@ -96,7 +96,25 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.status(200).send({ user: user.email, token: token });
+    const filteredUser = {
+      phone: user.phone,
+      birthday: user.birthday,
+      interest: user.interest,
+      preference: user.preference,
+      goal: user.goal,
+      isAdmin: user.isAdmin,
+      level: user.level,
+      name: `${user.firstName} ${user.lastName}`,
+      email: user.email,
+      created: user.created,
+      id: user.id,
+    };
+
+    console.log("res:", res);
+    res.status(200).send({
+      user: filteredUser,
+      token: token,
+    });
   } else {
     res.status(400).send("password is wrong!");
   }
@@ -111,14 +129,13 @@ router.post("/register", async (req, res) => {
     passwordHash: bcrypt.hashSync(req.body.password, 10),
     phone: req.body.phone,
     isAdmin: req.body.isAdmin,
-    userType: req.body.userType,
     birthday: req.body.birthday,
     interest: req.body.interest,
+    preference: req.body.preference,
     goal: req.body.goal,
     level: req.body.level,
     created: req.body.created,
   });
-  console.log("user:", user);
   user = await user.save();
 
   if (!user) return res.status(400).send("the user cannot be created!");

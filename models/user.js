@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
-const USERTYPES = {
-  ADMIN: "ADMIN",
-  TEACHER: "TEACHER",
-  STUDENT: "STUDENT",
+const USERLEVEL = {
+  BEGINNER: "BEGINNER",
+  INTERMEDIATE: "INTERMEDIATE",
+  EXPERT: "EXPERT",
 };
 const userSchema = new mongoose.Schema({
   firstName: {
@@ -25,15 +25,15 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
-  userType: {
-    type: String,
-    default: USERTYPES.STUDENT,
-  },
   birthday: {
     type: Date,
     default: "",
   },
   interest: {
+    type: String,
+    default: "",
+  },
+  preference: {
     type: String,
     default: "",
   },
@@ -47,7 +47,7 @@ const userSchema = new mongoose.Schema({
   },
   level: {
     type: String,
-    default: "",
+    default: USERLEVEL.BEGINNER,
   },
   created: {
     type: Date,
