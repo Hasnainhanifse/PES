@@ -5,6 +5,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 router.get(`/`, async (req, res) => {
+  console.log("req:", req);
+  console.log("get all");
   const userList = await User.find().select("-passwordHash");
 
   if (!userList) {
@@ -33,6 +35,9 @@ router.post("/", async (req, res) => {
     phone: req.body.phone,
     isAdmin: req.body.isAdmin,
     birthday: req.body.birthday,
+    quizAssessment: req.body.quizAssessment,
+    assignmentAssessment: req.body.assignmentAssessment,
+    examAssessment: req.body.examAssessment,
     interest: req.body.interest,
     preference: req.body.preference,
     goal: req.body.goal,
@@ -65,6 +70,9 @@ router.put("/:id", async (req, res) => {
       phone: req.body.phone,
       isAdmin: req.body.isAdmin,
       birthday: req.body.birthday,
+      quizAssessment: req.body.quizAssessment,
+      assignmentAssessment: req.body.assignmentAssessment,
+      examAssessment: req.body.examAssessment,
       interest: req.body.interest,
       preference: req.body.preference,
       goal: req.body.goal,
@@ -107,6 +115,9 @@ router.post("/login", async (req, res) => {
       name: `${user.firstName} ${user.lastName}`,
       email: user.email,
       created: user.created,
+      quizAssessment: user.quizAssessment,
+      assignmentAssessment: user.assignmentAssessment,
+      examAssessment: user.examAssessment,
       id: user.id,
     };
 
@@ -131,6 +142,9 @@ router.post("/register", async (req, res) => {
     isAdmin: req.body.isAdmin,
     birthday: req.body.birthday,
     interest: req.body.interest,
+    quizAssessment: req.body.quizAssessment,
+    assignmentAssessment: req.body.assignmentAssessment,
+    examAssessment: req.body.examAssessment,
     preference: req.body.preference,
     goal: req.body.goal,
     level: req.body.level,

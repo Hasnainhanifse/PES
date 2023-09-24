@@ -10,6 +10,7 @@ const cors = require("cors");
 const productRoutes = require("./routes/products");
 const categoriesRoutes = require("./routes/categories");
 const usersRoutes = require("./routes/users");
+const quizRoutes = require("./routes/quiz");
 const ordersRoutes = require("./routes/orders");
 const authJwt = require("./helpers/jwt");
 const errorHandler = require("./helpers/error-handler");
@@ -25,6 +26,7 @@ app.use(errorHandler);
 app.use("/public/uploads", express.static(__dirname + "/public/uploads"));
 
 app.use(`${api}/users`, usersRoutes);
+app.use(`${api}/quiz`, quizRoutes);
 
 //database
 mongoose

@@ -49,6 +49,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: USERLEVEL.BEGINNER,
   },
+  quizAssessment: {
+    type: Number,
+    default: null,
+  },
+  assignmentAssessment: {
+    type: Number,
+    default: null,
+  },
+  examAssessment: {
+    type: Number,
+    default: null,
+  },
   created: {
     type: Date,
     default: Date.now,
