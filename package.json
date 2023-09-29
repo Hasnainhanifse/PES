@@ -1,7 +1,7 @@
 {
-  "name": "eshop",
+  "name": "Personalized Education System",
   "version": "1.0.0",
-  "description": "backend of the eshop",
+  "description": "backend of the PES",
   "main": "app.js",
   "scripts": {
     "start": "nodemon app.js",

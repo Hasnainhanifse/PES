@@ -5,8 +5,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 router.get(`/`, async (req, res) => {
-  console.log("req:", req);
-  console.log("get all");
   const userList = await User.find().select("-passwordHash");
 
   if (!userList) {
@@ -63,21 +61,27 @@ router.put("/:id", async (req, res) => {
   const user = await User.findByIdAndUpdate(
     req.params.id,
     {
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
+      firstName: req.body.firstName ? req.body.firstName : userExist.firstName,
+      lastName: req.body.lastName ? req.body.lastName : userExist.lastName,
+      email: req.body.email ? req.body.email : userExist.email,
       passwordHash: newPassword,
-      phone: req.body.phone,
-      isAdmin: req.body.isAdmin,
-      birthday: req.body.birthday,
-      quizAssessment: req.body.quizAssessment,
-      assignmentAssessment: req.body.assignmentAssessment,
-      examAssessment: req.body.examAssessment,
-      interest: req.body.interest,
-      preference: req.body.preference,
-      goal: req.body.goal,
-      level: req.body.level,
-      created: req.body.created,
+      phone: req.body.phone ? req.body.phone : userExist.phone,
+      birthday: req.body.birthday ? req.body.birthday : userExist.birthday,
+      quizAssessment: req.body.quizAssessment
+        ? req.body.quizAssessment
+        : userExist.quizAssessment,
+      assignmentAssessment: req.body.assignmentAssessment
+        ? req.body.assignmentAssessment
+        : userExist.assignmentAssessment,
+      examAssessment: req.body.examAssessment
+        ? req.body.examAssessment
+        : userExist.examAssessment,
+      interest: req.body.interest ? req.body.interest : userExist.interest,
+      preference: req.body.preference
+        ? req.body.preference
+        : userExist.preference,
+      goal: req.body.goal ? req.body.goal : userExist.goal,
+      level: req.body.level ? req.body.level : userExist.level,
     },
     { new: true }
   );
@@ -104,26 +108,8 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    const filteredUser = {
-      phone: user.phone,
-      birthday: user.birthday,
-      interest: user.interest,
-      preference: user.preference,
-      goal: user.goal,
-      isAdmin: user.isAdmin,
-      level: user.level,
-      name: `${user.firstName} ${user.lastName}`,
-      email: user.email,
-      created: user.created,
-      quizAssessment: user.quizAssessment,
-      assignmentAssessment: user.assignmentAssessment,
-      examAssessment: user.examAssessment,
-      id: user.id,
-    };
-
-    console.log("res:", res);
     res.status(200).send({
-      user: filteredUser,
+      user: user,
       token: token,
     });
   } else {
