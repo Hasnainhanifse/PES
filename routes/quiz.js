@@ -3,6 +3,14 @@ const router = express.Router();
 const Question = require("../models/question");
 const Quiz = require("../models/quiz").Quiz;
 const ResponseResult = require("../helpers/DTO");
+const User = require("../models/user");
+const mongoose = require("mongoose");
+
+const USERLEVEL = {
+  BEGINNER: "BEGINNER",
+  INTERMEDIATE: "INTERMEDIATE",
+  EXPERT: "EXPERT",
+};
 
 async function getQuizDetails(quizes) {
   if (quizes && quizes.length) {
@@ -72,7 +80,7 @@ router.get("/:id", async (req, res) => {
 // create one quiz
 router.post("/", async (req, res) => {
   try {
-    const { name, level, questions } = req.body;
+    const { name, level, questions, users, submittedUsers } = req.body;
     if (name && level && questions) {
       const savedQuestions = Promise.all(
         questions.map(async (question) => {
@@ -93,9 +101,12 @@ router.post("/", async (req, res) => {
         name: name,
         level: level,
         questions: savedQuestionsResolved,
+        users: users,
+        submittedUsers: submittedUsers,
       });
       quiz = await quiz.save();
       if (!quiz) return res.status(400).send("The Quiz cannot be created!");
+
       let result = ResponseResult(quiz.length, quiz);
       return res.status(200).send(result);
     }
@@ -122,18 +133,36 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-//Questions routes
-// get all quiz questions
-
-router.get("/questions", async (req, res) => {
+//submit quiz
+router.post("/submit", async (req, res) => {
   try {
-    const questions = await Question.find();
-    return res.status(200).json(questions);
+    console.log("req.body;:", req.body);
+    const { currentUser, correctAnswers, quizId } = req.body;
+
+    if (
+      !mongoose.isValidObjectId(quizId) ||
+      !mongoose.isValidObjectId(currentUser)
+    ) {
+      return res.status(400).send("Invalid Quiz Id or missing current user id");
+    }
+
+    let quiz = await Quiz.findById(quizId);
+    console.log("quiz:", quiz);
+    if (!quiz) {
+      return res.status(400).send("Quiz id is not valid");
+    }
+    if (quiz.submittedUsers.includes(currentUser)) {
+      return res.status(400).send("Quiz is already submitted");
+    }
+    quiz.submittedUsers = [...quiz.submittedUsers, currentUser];
+    await quiz.save();
+    return res.status(200).json(quiz);
   } catch (error) {
-    console.log("error:", error);
     return res.status(500).json({ error: error });
   }
 });
+
+//Questions routes
 
 // get one quiz question
 router.get("/questions/:id", async (req, res) => {

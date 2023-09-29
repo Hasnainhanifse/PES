@@ -16,11 +16,25 @@ const quizSchema = mongoose.Schema({
     required: true,
     default: USERLEVEL.BEGINNER,
   },
+  users: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: false,
+    },
+  ],
   questions: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Question",
       required: true,
+    },
+  ],
+  submittedUsers: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: false,
     },
   ],
   dateCreated: {
