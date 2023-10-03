@@ -58,33 +58,29 @@ router.put("/:id", async (req, res) => {
     newPassword = userExist.passwordHash;
   }
 
-  const user = await User.findByIdAndUpdate(
-    req.params.id,
-    {
-      firstName: req.body.firstName ? req.body.firstName : userExist.firstName,
-      lastName: req.body.lastName ? req.body.lastName : userExist.lastName,
-      email: req.body.email ? req.body.email : userExist.email,
-      passwordHash: newPassword,
-      phone: req.body.phone ? req.body.phone : userExist.phone,
-      birthday: req.body.birthday ? req.body.birthday : userExist.birthday,
-      quizAssessment: req.body.quizAssessment
-        ? req.body.quizAssessment
-        : userExist.quizAssessment,
-      assignmentAssessment: req.body.assignmentAssessment
-        ? req.body.assignmentAssessment
-        : userExist.assignmentAssessment,
-      examAssessment: req.body.examAssessment
-        ? req.body.examAssessment
-        : userExist.examAssessment,
-      interest: req.body.interest ? req.body.interest : userExist.interest,
-      preference: req.body.preference
-        ? req.body.preference
-        : userExist.preference,
-      goal: req.body.goal ? req.body.goal : userExist.goal,
-      level: req.body.level ? req.body.level : userExist.level,
-    },
-    { new: true }
-  );
+  const user = await User.findByIdAndUpdate(req.params.id, {
+    firstName: req.body.firstName ? req.body.firstName : userExist.firstName,
+    lastName: req.body.lastName ? req.body.lastName : userExist.lastName,
+    email: req.body.email ? req.body.email : userExist.email,
+    passwordHash: newPassword,
+    phone: req.body.phone ? req.body.phone : userExist.phone,
+    birthday: req.body.birthday ? req.body.birthday : userExist.birthday,
+    quizAssessment: req.body.quizAssessment
+      ? req.body.quizAssessment
+      : userExist.quizAssessment,
+    assignmentAssessment: req.body.assignmentAssessment
+      ? req.body.assignmentAssessment
+      : userExist.assignmentAssessment,
+    examAssessment: req.body.examAssessment
+      ? req.body.examAssessment
+      : userExist.examAssessment,
+    interest: req.body.interest ? req.body.interest : userExist.interest,
+    preference: req.body.preference
+      ? req.body.preference
+      : userExist.preference,
+    goal: req.body.goal ? req.body.goal : userExist.goal,
+    level: req.body.level ? req.body.level : userExist.level,
+  });
 
   if (!user) return res.status(400).send("the user cannot be created!");
 
@@ -118,7 +114,6 @@ router.post("/login", async (req, res) => {
 });
 
 router.post("/register", async (req, res) => {
-  console.log("req:", req);
   let user = new User({
     firstName: req.body.firstName,
     lastName: req.body.lastName,

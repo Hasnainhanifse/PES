@@ -136,7 +136,6 @@ router.delete("/:id", async (req, res) => {
 //submit quiz
 router.post("/submit", async (req, res) => {
   try {
-    console.log("req.body;:", req.body);
     const { currentUser, correctAnswers, quizId } = req.body;
 
     if (
@@ -147,7 +146,6 @@ router.post("/submit", async (req, res) => {
     }
 
     let quiz = await Quiz.findById(quizId);
-    console.log("quiz:", quiz);
     if (!quiz) {
       return res.status(400).send("Quiz id is not valid");
     }

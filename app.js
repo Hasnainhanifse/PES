@@ -7,11 +7,9 @@ const api = process.env.API_URL;
 const cors = require("cors");
 
 //routes
-const productRoutes = require("./routes/products");
-const categoriesRoutes = require("./routes/categories");
 const usersRoutes = require("./routes/users");
 const quizRoutes = require("./routes/quiz");
-const ordersRoutes = require("./routes/orders");
+const assignmentRoutes = require("./routes/assignment");
 const authJwt = require("./helpers/jwt");
 const errorHandler = require("./helpers/error-handler");
 
@@ -27,6 +25,7 @@ app.use("/public/uploads", express.static(__dirname + "/public/uploads"));
 
 app.use(`${api}/users`, usersRoutes);
 app.use(`${api}/quiz`, quizRoutes);
+app.use(`${api}/assigment`, assignmentRoutes);
 
 //database
 mongoose
