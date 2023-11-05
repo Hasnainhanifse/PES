@@ -1,10 +1,5 @@
 const mongoose = require("mongoose");
-
-const USERLEVEL = {
-  BEGINNER: "BEGINNER",
-  INTERMEDIATE: "INTERMEDIATE",
-  EXPERT: "EXPERT",
-};
+const USERLEVEL = require("../lib/userLevel");
 
 const assignmentSchema = mongoose.Schema({
   name: {

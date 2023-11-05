@@ -3,14 +3,7 @@ const router = express.Router();
 const Question = require("../models/question");
 const Quiz = require("../models/quiz").Quiz;
 const ResponseResult = require("../helpers/DTO");
-const User = require("../models/user");
 const mongoose = require("mongoose");
-
-const USERLEVEL = {
-  BEGINNER: "BEGINNER",
-  INTERMEDIATE: "INTERMEDIATE",
-  EXPERT: "EXPERT",
-};
 
 async function getQuizDetails(quizes) {
   if (quizes && quizes.length) {

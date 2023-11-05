@@ -1,6 +1,6 @@
 function ResponseResult(count, result) {
   if (!result || !result.length) {
-    count = 1;
+    count = 0;
   }
   return {
     count: count,
