@@ -11,6 +11,7 @@ const usersRoutes = require("./routes/users");
 const quizRoutes = require("./routes/quiz");
 const assignmentRoutes = require("./routes/assignment");
 const articleRoutes = require("./routes/article");
+const courseRoutes = require("./routes/course");
 const authJwt = require("./helpers/jwt");
 const errorHandler = require("./helpers/error-handler");
 
@@ -28,6 +29,7 @@ app.use(`${api}/users`, usersRoutes);
 app.use(`${api}/quiz`, quizRoutes);
 app.use(`${api}/assigment`, assignmentRoutes);
 app.use(`${api}/article`, articleRoutes);
+app.use(`${api}/course`, courseRoutes);
 
 //database
 mongoose

@@ -45,6 +45,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: USERLEVEL.BEGINNER,
   },
+  courses: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Course",
+    },
+  ],
   quizAssessment: {
     type: Number,
     default: null,
