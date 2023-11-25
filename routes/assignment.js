@@ -6,6 +6,7 @@ const { AssignmentUser } = require("../models/assignment-user");
 const mongoose = require("mongoose");
 const multer = require("multer");
 const fs = require("fs");
+const { User } = require("../models/user");
 
 const FILE_TYPE_MAP = {
   "application/msword": "doc",
@@ -91,6 +92,33 @@ router.get("/", async (req, res) => {
       }
     }
     assignments = await getAssignmentUserDetails(assignments, currentUser);
+    let result = ResponseResult(assignments.length, assignments);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error });
+  }
+});
+
+router.get("/submittedAssignments", async (req, res) => {
+  try {
+    const { user } = req.query;
+    //checking if current user id is valid in mongodb
+    if (user && !mongoose.isValidObjectId(user)) {
+      return res.status(400).send("Invalid User Id or missing current user id");
+    }
+
+    let currentUser = await User.findById(user);
+    if (!currentUser.isAdmin) {
+      return res
+        .status(400)
+        .send("User is not authorized to get submitted assignments");
+    }
+
+    let assignments = await AssignmentUser.find();
+    if (!assignments) {
+      return res.status(400).send("Submitted assignments can not collect");
+    }
     let result = ResponseResult(assignments.length, assignments);
     res.status(200).json(result);
   } catch (error) {
@@ -218,6 +246,31 @@ router.put("/submit", uploadOptions.single("file"), async (req, res) => {
     assignment = await assignment.save();
     if (!assignment) return res.status(500).send("The File cannot be uploaded");
     res.status(200).send(assignment);
+  } catch (error) {
+    console.error("error:", error);
+    return res.status(500).json({ error: error });
+  }
+});
+
+// create one assignment
+router.post("/evaluate:id", async (req, res) => {
+  try {
+    const { score } = req.query;
+    const assignmentUserId = req.params.id;
+
+    if (assignmentUserId && !mongoose.isValidObjectId(assignmentUserId)) {
+      return res.status(400).send("Invalid assignment id");
+    }
+
+    let assignment = await AssignmentUser.findByIdAndUpdate(
+      assignmentUserId,
+      {
+        score: score ? score : 0,
+      },
+      { new: false }
+    );
+
+    return res.status(200).send(assignment);
   } catch (error) {
     console.error("error:", error);
     return res.status(500).json({ error: error });
