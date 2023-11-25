@@ -12,6 +12,18 @@ const assignmentUserSchema = mongoose.Schema({
   submittedFile: {
     type: String,
   },
+  score: {
+    type: Number,
+  },
+});
+
+assignmentUserSchema.virtual("id").get(function () {
+  return this._id.toHexString();
+});
+
+assignmentUserSchema.set("toJSON", {
+  virtuals: true,
 });
 
 exports.AssignmentUser = mongoose.model("AssignmentUser", assignmentUserSchema);
+exports.assignmentUserSchema = assignmentUserSchema;

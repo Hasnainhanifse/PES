@@ -12,6 +12,7 @@ const quizRoutes = require("./routes/quiz");
 const assignmentRoutes = require("./routes/assignment");
 const articleRoutes = require("./routes/article");
 const courseRoutes = require("./routes/course");
+const mlModelRoute = require("./routes/model");
 const authJwt = require("./helpers/jwt");
 const errorHandler = require("./helpers/error-handler");
 
@@ -27,9 +28,10 @@ app.use("/public/uploads", express.static(__dirname + "/public/uploads"));
 
 app.use(`${api}/users`, usersRoutes);
 app.use(`${api}/quiz`, quizRoutes);
-app.use(`${api}/assigment`, assignmentRoutes);
+app.use(`${api}/assignment`, assignmentRoutes);
 app.use(`${api}/article`, articleRoutes);
 app.use(`${api}/course`, courseRoutes);
+app.use(`${api}/model`, mlModelRoute);
 
 //database
 mongoose

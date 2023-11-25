@@ -126,12 +126,11 @@ router.post("/assign/:id", async (req, res) => {
       return res.status(400).send("already assigned course");
     }
 
-    existingUser.courses.concat(courseId);
-    course.users.concat(user);
+    existingUser.courses = [...existingUser.courses, courseId];
+    course.users = [...course.users, user];
     await existingUser.save();
     console.log("existingUser:", existingUser);
     course = await course.save();
-
     res.status(200).send(course);
   } catch (error) {
     console.error("error:", error);

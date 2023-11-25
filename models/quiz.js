@@ -10,13 +10,6 @@ const quizSchema = mongoose.Schema({
     required: true,
     default: USERLEVEL.BEGINNER,
   },
-  users: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: false,
-    },
-  ],
   questions: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -24,10 +17,10 @@ const quizSchema = mongoose.Schema({
       required: true,
     },
   ],
-  submittedUsers: [
+  submittedQuiz: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Quiz",
       required: false,
     },
   ],
@@ -46,3 +39,4 @@ quizSchema.set("toJSON", {
 });
 
 exports.Quiz = mongoose.model("Quiz", quizSchema);
+exports.quizSchema = quizSchema;
