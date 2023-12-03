@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Question = require("../models/question");
 const Quiz = require("../models/quiz").Quiz;
+const { QuizUser } = require("../models/quiz-user");
 const ResponseResult = require("../helpers/DTO");
 const mongoose = require("mongoose");
 
@@ -130,24 +131,32 @@ router.delete("/:id", async (req, res) => {
 router.post("/submit", async (req, res) => {
   try {
     const { currentUser, correctAnswers, quizId } = req.body;
-
     if (
       !mongoose.isValidObjectId(quizId) ||
       !mongoose.isValidObjectId(currentUser)
     ) {
       return res.status(400).send("Invalid Quiz Id or missing current user id");
     }
-
     let quiz = await Quiz.findById(quizId);
-    if (!quiz) {
-      return res.status(400).send("Quiz id is not valid");
-    }
-    if (quiz.submittedUsers.includes(currentUser)) {
+    let submittedQuiz = await QuizUser.find({
+      user: currentUser,
+      quiz: quizId,
+    });
+    if (!submittedQuiz || !submittedQuiz.length) {
+      submittedQuiz = new QuizUser({
+        user: currentUser,
+        name: quiz.name,
+        quiz: quizId,
+        score: correctAnswers,
+        submittedDate: new Date(),
+      });
+      submittedQuiz = await submittedQuiz.save();
+      quiz.submittedUsers = [...quiz.submittedUsers, currentUser];
+    } else {
       return res.status(400).send("Quiz is already submitted");
     }
-    quiz.submittedUsers = [...quiz.submittedUsers, currentUser];
     await quiz.save();
-    return res.status(200).json(quiz);
+    return res.status(200).json(submittedQuiz);
   } catch (error) {
     return res.status(500).json({ error: error });
   }

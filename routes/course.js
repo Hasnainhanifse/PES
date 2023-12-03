@@ -98,7 +98,7 @@ router.post("/", uploadOptions.single("image"), async (req, res) => {
   }
 });
 
-router.post("/assign/:id", async (req, res) => {
+router.post("/enroll/:id", async (req, res) => {
   try {
     const { user } = req.body;
     const courseId = req.params.id;
@@ -130,7 +130,7 @@ router.post("/assign/:id", async (req, res) => {
     course.users = [...course.users, user];
     await existingUser.save();
     course = await course.save();
-    res.status(200).send(course);
+    res.status(200).send(existingUser);
   } catch (error) {
     console.error("error:", error);
     return res.status(500).json({ error: error });
@@ -184,86 +184,5 @@ router.put("/:id", uploadOptions.single("image"), async (req, res) => {
     return res.status(500).json({ error: error });
   }
 });
-
-// // update article
-// router.put("/:id", uploadOptions.single("image"), async (req, res) => {
-//   try {
-//     const { title, description, interest, level } = req.body;
-//     const articleId = req.params.id;
-//     if (!articleId || !mongoose.isValidObjectId(articleId)) {
-//       return res.status(400).send("Please provide valid article Id");
-//     }
-//     //checking file is attached or not
-//     const file = req.file;
-//     let fileName, basePath;
-//     if (file) {
-//       //setting path and file name for uploaded file
-//       fileName = file.filename;
-//       basePath = `${req.protocol}://${req.get(
-//         "host"
-//       )}/public/uploads/articles/`;
-//     }
-
-//     //check if article is available
-//     let article = await Article.findById(articleId);
-//     if (!article) {
-//       removeFile(fileName);
-//       return res.status(400).send("Invalid Article");
-//     }
-
-//     let updatedArticle = await Article.findByIdAndUpdate(
-//       articleId,
-//       {
-//         title: title ? title : article.title,
-//         description: description ? description : article.description,
-//         interest: interest ? interest : article.interest,
-//         level: level ? level : article.level,
-//         image: fileName && basePath ? `${basePath}${fileName}` : article.image,
-//         created: article.created,
-//       },
-//       { new: false }
-//     );
-//     if (!updatedArticle) {
-//       removeFile(fileName);
-//       return res.status(500).send("the article cannot be update!");
-//     }
-
-//     article = await Article.findById(articleId);
-//     res.status(200).send(article);
-//   } catch (error) {
-//     console.error("error:", error);
-//     return res.status(500).json({ error: error });
-//   }
-// });
-
-// // update article
-// router.delete("/:id", async (req, res) => {
-//   try {
-//     const articleId = req.params.id;
-//     if (!articleId || !mongoose.isValidObjectId(articleId)) {
-//       return res.status(400).send("Please provide valid article Id");
-//     }
-
-//     Article.findByIdAndRemove(articleId)
-//       .then((article) => {
-//         if (article) {
-//           removeFile(article.image);
-//           return res
-//             .status(200)
-//             .json({ success: true, message: "the article is deleted!" });
-//         } else {
-//           return res
-//             .status(404)
-//             .json({ success: false, message: "article not found!" });
-//         }
-//       })
-//       .catch((err) => {
-//         return res.status(500).json({ success: false, error: err });
-//       });
-//   } catch (error) {
-//     console.error("error:", error);
-//     return res.status(500).json({ error: error });
-//   }
-// });
 
 module.exports = router;

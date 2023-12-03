@@ -58,33 +58,39 @@ router.put("/:id", async (req, res) => {
     newPassword = userExist.passwordHash;
   }
 
-  const user = await User.findByIdAndUpdate(req.params.id, {
-    firstName: req.body.firstName ? req.body.firstName : userExist.firstName,
-    lastName: req.body.lastName ? req.body.lastName : userExist.lastName,
-    email: req.body.email ? req.body.email : userExist.email,
-    passwordHash: newPassword,
-    phone: req.body.phone ? req.body.phone : userExist.phone,
-    birthday: req.body.birthday ? req.body.birthday : userExist.birthday,
-    quizAssessment: req.body.quizAssessment
-      ? req.body.quizAssessment
-      : userExist.quizAssessment,
-    assignmentAssessment: req.body.assignmentAssessment
-      ? req.body.assignmentAssessment
-      : userExist.assignmentAssessment,
-    examAssessment: req.body.examAssessment
-      ? req.body.examAssessment
-      : userExist.examAssessment,
-    interest: req.body.interest ? req.body.interest : userExist.interest,
-    preference: req.body.preference
-      ? req.body.preference
-      : userExist.preference,
-    goal: req.body.goal ? req.body.goal : userExist.goal,
-    level: req.body.level ? req.body.level : userExist.level,
-  });
+  const user = await User.findByIdAndUpdate(
+    req.params.id,
+    {
+      firstName: req.body.firstName ? req.body.firstName : userExist.firstName,
+      lastName: req.body.lastName ? req.body.lastName : userExist.lastName,
+      email: userExist.email,
+      passwordHash: newPassword,
+      phone: req.body.phone ? req.body.phone : userExist.phone,
+      birthday: req.body.birthday ? req.body.birthday : userExist.birthday,
+      quizAssessment: req.body.quizAssessment
+        ? req.body.quizAssessment
+        : userExist.quizAssessment,
+      assignmentAssessment: req.body.assignmentAssessment
+        ? req.body.assignmentAssessment
+        : userExist.assignmentAssessment,
+      examAssessment: req.body.examAssessment
+        ? req.body.examAssessment
+        : userExist.examAssessment,
+      interest: req.body.interest ? req.body.interest : userExist.interest,
+      preference: req.body.preference
+        ? req.body.preference
+        : userExist.preference,
+      goal: req.body.goal ? req.body.goal : userExist.goal,
+      level: req.body.level ? req.body.level : userExist.level,
+    },
+    { new: false }
+  );
 
   if (!user) return res.status(400).send("the user cannot be created!");
 
-  res.send(user);
+  const updatedUser = await User.findById(req.params.id);
+
+  return res.send(updatedUser);
 });
 
 router.post("/login", async (req, res) => {
@@ -114,6 +120,14 @@ router.post("/login", async (req, res) => {
 });
 
 router.post("/register", async (req, res) => {
+  let alreadyRegisteredUser = await User.findOne({ email: req.body.email });
+  if (alreadyRegisteredUser) {
+    return res
+      .status(400)
+      .send(
+        `User is already registered with email ${alreadyRegisteredUser.email}`
+      );
+  }
   let user = new User({
     firstName: req.body.firstName,
     lastName: req.body.lastName,
@@ -135,7 +149,7 @@ router.post("/register", async (req, res) => {
 
   if (!user) return res.status(400).send("the user cannot be created!");
 
-  res.send(user);
+  return res.send(user);
 });
 
 router.delete("/:id", (req, res) => {

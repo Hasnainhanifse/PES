@@ -17,10 +17,10 @@ const quizSchema = mongoose.Schema({
       required: true,
     },
   ],
-  submittedQuiz: [
+  submittedUsers: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Quiz",
+      ref: "User",
       required: false,
     },
   ],

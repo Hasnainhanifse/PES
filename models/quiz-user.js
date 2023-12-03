@@ -5,12 +5,18 @@ const quizUserSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+  name: {
+    type: String,
+  },
   quiz: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Quiz",
   },
   score: {
     type: Number,
+  },
+  submittedDate: {
+    type: Date,
   },
 });
 

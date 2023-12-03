@@ -5,6 +5,9 @@ const assignmentUserSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+  name: {
+    type: String,
+  },
   assignment: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Assignment",
@@ -14,6 +17,9 @@ const assignmentUserSchema = mongoose.Schema({
   },
   score: {
     type: Number,
+  },
+  submittedDate: {
+    type: Date,
   },
 });
 

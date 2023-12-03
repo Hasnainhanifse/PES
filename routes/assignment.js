@@ -86,7 +86,7 @@ router.get("/", async (req, res) => {
         return res.status(400).send("No Assignments available");
       }
     } else {
-      assignments = await Assignment.find();
+      assignments = await Assignment.find().populate("studentAssignments");
       if (!assignments) {
         return res.status(400).send("No Assignments available");
       }
@@ -115,10 +115,11 @@ router.get("/submittedAssignments", async (req, res) => {
         .send("User is not authorized to get submitted assignments");
     }
 
-    let assignments = await AssignmentUser.find();
+    let assignments = await AssignmentUser.find().populate("user");
     if (!assignments) {
       return res.status(400).send("Submitted assignments can not collect");
     }
+
     let result = ResponseResult(assignments.length, assignments);
     res.status(200).json(result);
   } catch (error) {
@@ -168,7 +169,6 @@ router.post("/upload", uploadOptions.single("file"), async (req, res) => {
 router.put("/submit", uploadOptions.single("file"), async (req, res) => {
   try {
     const { user, assignmentId, submitAssignmentId } = req.body;
-
     //checking file is attached or not
     const file = req.file;
     if (!file) return res.status(400).send("No File in the request");
@@ -202,15 +202,20 @@ router.put("/submit", uploadOptions.single("file"), async (req, res) => {
     }
 
     //check if assignment is submitted or not
-    let assignmentUser = await AssignmentUser.findById(submitAssignmentId);
+    let assignmentUser = await AssignmentUser.find({
+      assignment: assignmentId,
+      user: user,
+    });
 
     let submittedAssignment;
-    if (!assignmentUser) {
+    if (!assignmentUser || !assignmentUser.length) {
       //if assignment is not submitted then we will submit assignment and assign submitted id to assignment object's studentAssignments array
       submittedAssignment = new AssignmentUser({
         user: user,
+        name: assignment.name,
         assignment: assignmentId,
         submittedFile: `${basePath}${fileName}`,
+        submittedDate: new Date(),
       });
       submittedAssignment = await submittedAssignment.save();
       assignment.studentAssignments = [
@@ -252,23 +257,22 @@ router.put("/submit", uploadOptions.single("file"), async (req, res) => {
   }
 });
 
-// create one assignment
-router.post("/evaluate:id", async (req, res) => {
+router.post("/evaluate", uploadOptions.single("file"), async (req, res) => {
   try {
-    const { score } = req.query;
-    const assignmentUserId = req.params.id;
-
-    if (assignmentUserId && !mongoose.isValidObjectId(assignmentUserId)) {
+    const { score, assignmentId, user } = req.body;
+    if (assignmentId && !mongoose.isValidObjectId(assignmentId)) {
       return res.status(400).send("Invalid assignment id");
     }
 
-    let assignment = await AssignmentUser.findByIdAndUpdate(
-      assignmentUserId,
-      {
-        score: score ? score : 0,
-      },
-      { new: false }
-    );
+    let assignment = await AssignmentUser.findOne({
+      assignment: assignmentId,
+      user: user,
+    });
+    if (assignment) {
+      (assignment.score = score ? score : 0), await assignment.save();
+    } else {
+      return res.status(400).send("No submitted assignment found");
+    }
 
     return res.status(200).send(assignment);
   } catch (error) {

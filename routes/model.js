@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { QuizUser } = require("../models/quiz-user");
 const { AssignmentUser } = require("../models/assignment-user");
+const { User } = require("../models/user");
 const mongoose = require("mongoose");
 const tf = require("@tensorflow/tfjs-node");
 const Question = require("../models/question");
@@ -9,32 +10,17 @@ const { Quiz } = require("../models/quiz");
 const { Assignment } = require("../models/assignment");
 const { Course } = require("../models/course");
 
-async function getQuizDetails(quizes) {
-  if (quizes && quizes.length) {
-    let quizWithQuestions = Promise.all(
-      quizes.map(async (quiz) => {
-        if (quiz.questions && quiz.questions.length) {
-          quiz.questions = await Question.find({
-            _id: { $in: quiz.questions },
-          }).exec();
-          return quiz;
-        }
-      })
-    );
-    return await quizWithQuestions;
-  } else {
-    quizes.questions = await Question.find({
-      _id: { $in: quizes.questions },
-    }).exec();
-    return quizes;
-  }
-}
-
 router.post("/train", async (req, res) => {
   try {
     const user = req.query.user;
     if (!mongoose.isValidObjectId(user)) {
       return res.status(400).send("Invalid User Id");
+    }
+
+    const adminUser = await User.findOne({ _id: user });
+
+    if (!adminUser || !adminUser.isAdmin) {
+      return res.status(400).send("You are not authorized to train model");
     }
 
     assignments = await AssignmentUser.find();
@@ -52,6 +38,7 @@ router.post("/train", async (req, res) => {
       quizScore,
       assignmentScores[index],
     ]);
+
     const targetData = quizScores.map((quizScore) => [
       quizScore / 10,
       quizScore / 20,
@@ -98,11 +85,10 @@ router.post("/train", async (req, res) => {
     // Initialize model training
     await trainModel();
     await model.save("file://recommender-model");
-    return res
-      .status(200)
-      .send(
-        "Model trained and saved successfully, server is restarting to get optimized results"
-      );
+    return res.status(200).send({
+      message:
+        "Model trained and saved successfully, server is restarting to get optimized results",
+    });
   } catch (error) {
     if (error instanceof ReferenceError) {
       return res.status(400).json({ error: error.message });
@@ -118,8 +104,9 @@ router.get("/recommended", async (req, res) => {
       return res.status(400).send("Invalid User Id");
     }
 
-    let courses = await Course.find({ _id: { $in: user.courses } });
-    if (!courses) {
+    const currentUser = await User.findById(user);
+    let courses = await Course.find({ _id: { $in: currentUser.courses } });
+    if (!courses || !courses.length) {
       return res
         .status(400)
         .send("No Course selected yet, please select course first");
@@ -127,14 +114,15 @@ router.get("/recommended", async (req, res) => {
     const loadedModel = await tf.loadLayersModel(
       "file://recommender-model/model.json"
     );
-    let assignments = await AssignmentUser.find({ user: user });
-    let quizzes = await QuizUser.find({ user: user });
+    let assignments = await AssignmentUser.find({ user: currentUser.id });
+    let quizzes = await QuizUser.find({ user: currentUser.id });
 
-    if (!assignments || !assignments.length) {
-      assignments = [0];
-    }
-    if (!quizzes || !quizzes.length) {
-      quizzes = [0];
+    if (
+      (!assignments || !assignments.length) &&
+      (!quizzes || !quizzes.length)
+    ) {
+      assignments = await AssignmentUser.find();
+      quizzes = await QuizUser.find();
     }
 
     const quizScores = quizzes.map((scoreObj) =>
@@ -189,13 +177,16 @@ router.get("/recommended", async (req, res) => {
         recommendedAssignment: null,
       };
       if (recommendedItem.quiz) {
-        let recQuiz = await Quiz.findById(recommendedItem.quiz.quiz);
-        recommendedData.recommendedQuiz = await getQuizDetails(recQuiz);
+        let recQuiz = (recommendedData.recommendedQuiz = [
+          await Quiz.findById(recommendedItem.quiz.quiz).populate("questions"),
+        ]);
       }
       if (recommendedItem.assignment) {
-        recommendedData.recommendedAssignment = await Assignment.findById(
-          recommendedItem.assignment.assignment
-        );
+        recommendedData.recommendedAssignment = [
+          await Assignment.findById(
+            recommendedItem.assignment.assignment
+          ).populate("studentAssignments"),
+        ];
       }
       return res.json(recommendedData);
     }
