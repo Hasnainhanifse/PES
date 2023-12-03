@@ -7,10 +7,14 @@ const api = process.env.API_URL;
 const cors = require("cors");
 
 //routes
-const productRoutes = require("./routes/products");
-const categoriesRoutes = require("./routes/categories");
 const usersRoutes = require("./routes/users");
-const ordersRoutes = require("./routes/orders");
+const quizRoutes = require("./routes/quiz");
+const assignmentRoutes = require("./routes/assignment");
+const articleRoutes = require("./routes/article");
+const courseRoutes = require("./routes/course");
+const progressRoutes = require("./routes/progress");
+const videosRoutes = require("./routes/videos");
+const mlModelRoute = require("./routes/model");
 const authJwt = require("./helpers/jwt");
 const errorHandler = require("./helpers/error-handler");
 
@@ -25,6 +29,13 @@ app.use(errorHandler);
 app.use("/public/uploads", express.static(__dirname + "/public/uploads"));
 
 app.use(`${api}/users`, usersRoutes);
+app.use(`${api}/quiz`, quizRoutes);
+app.use(`${api}/assignment`, assignmentRoutes);
+app.use(`${api}/articles`, articleRoutes);
+app.use(`${api}/courses`, courseRoutes);
+app.use(`${api}/progress`, progressRoutes);
+app.use(`${api}/videos`, videosRoutes);
+app.use(`${api}/model`, mlModelRoute);
 
 //database
 mongoose

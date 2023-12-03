@@ -32,9 +32,12 @@ router.post("/", async (req, res) => {
     passwordHash: bcrypt.hashSync(req.body.password, 10),
     phone: req.body.phone,
     isAdmin: req.body.isAdmin,
-    userType: req.body.userType,
     birthday: req.body.birthday,
+    quizAssessment: req.body.quizAssessment,
+    assignmentAssessment: req.body.assignmentAssessment,
+    examAssessment: req.body.examAssessment,
     interest: req.body.interest,
+    preference: req.body.preference,
     goal: req.body.goal,
     level: req.body.level,
     created: req.body.created,
@@ -58,25 +61,36 @@ router.put("/:id", async (req, res) => {
   const user = await User.findByIdAndUpdate(
     req.params.id,
     {
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
+      firstName: req.body.firstName ? req.body.firstName : userExist.firstName,
+      lastName: req.body.lastName ? req.body.lastName : userExist.lastName,
+      email: userExist.email,
       passwordHash: newPassword,
-      phone: req.body.phone,
-      userType: req.body.userType,
-      isAdmin: req.body.isAdmin,
-      birthday: req.body.birthday,
-      interest: req.body.interest,
-      goal: req.body.goal,
-      level: req.body.level,
-      created: req.body.created,
+      phone: req.body.phone ? req.body.phone : userExist.phone,
+      birthday: req.body.birthday ? req.body.birthday : userExist.birthday,
+      quizAssessment: req.body.quizAssessment
+        ? req.body.quizAssessment
+        : userExist.quizAssessment,
+      assignmentAssessment: req.body.assignmentAssessment
+        ? req.body.assignmentAssessment
+        : userExist.assignmentAssessment,
+      examAssessment: req.body.examAssessment
+        ? req.body.examAssessment
+        : userExist.examAssessment,
+      interest: req.body.interest ? req.body.interest : userExist.interest,
+      preference: req.body.preference
+        ? req.body.preference
+        : userExist.preference,
+      goal: req.body.goal ? req.body.goal : userExist.goal,
+      level: req.body.level ? req.body.level : userExist.level,
     },
-    { new: true }
+    { new: false }
   );
 
   if (!user) return res.status(400).send("the user cannot be created!");
 
-  res.send(user);
+  const updatedUser = await User.findById(req.params.id);
+
+  return res.send(updatedUser);
 });
 
 router.post("/login", async (req, res) => {
@@ -96,14 +110,24 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.status(200).send({ user: user.email, token: token });
+    res.status(200).send({
+      user: user,
+      token: token,
+    });
   } else {
     res.status(400).send("password is wrong!");
   }
 });
 
 router.post("/register", async (req, res) => {
-  console.log("req:", req);
+  let alreadyRegisteredUser = await User.findOne({ email: req.body.email });
+  if (alreadyRegisteredUser) {
+    return res
+      .status(400)
+      .send(
+        `User is already registered with email ${alreadyRegisteredUser.email}`
+      );
+  }
   let user = new User({
     firstName: req.body.firstName,
     lastName: req.body.lastName,
@@ -111,19 +135,21 @@ router.post("/register", async (req, res) => {
     passwordHash: bcrypt.hashSync(req.body.password, 10),
     phone: req.body.phone,
     isAdmin: req.body.isAdmin,
-    userType: req.body.userType,
     birthday: req.body.birthday,
     interest: req.body.interest,
+    quizAssessment: req.body.quizAssessment,
+    assignmentAssessment: req.body.assignmentAssessment,
+    examAssessment: req.body.examAssessment,
+    preference: req.body.preference,
     goal: req.body.goal,
     level: req.body.level,
     created: req.body.created,
   });
-  console.log("user:", user);
   user = await user.save();
 
   if (!user) return res.status(400).send("the user cannot be created!");
 
-  res.send(user);
+  return res.send(user);
 });
 
 router.delete("/:id", (req, res) => {

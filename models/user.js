@@ -1,9 +1,5 @@
 const mongoose = require("mongoose");
-const USERTYPES = {
-  ADMIN: "ADMIN",
-  TEACHER: "TEACHER",
-  STUDENT: "STUDENT",
-};
+const USERLEVEL = require("../lib/userLevel");
 const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
@@ -25,15 +21,15 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
-  userType: {
-    type: String,
-    default: USERTYPES.STUDENT,
-  },
   birthday: {
     type: Date,
     default: "",
   },
   interest: {
+    type: String,
+    default: "",
+  },
+  preference: {
     type: String,
     default: "",
   },
@@ -47,7 +43,25 @@ const userSchema = new mongoose.Schema({
   },
   level: {
     type: String,
-    default: "",
+    default: USERLEVEL.BEGINNER,
+  },
+  courses: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Course",
+    },
+  ],
+  quizAssessment: {
+    type: Number,
+    default: null,
+  },
+  assignmentAssessment: {
+    type: Number,
+    default: null,
+  },
+  examAssessment: {
+    type: Number,
+    default: null,
   },
   created: {
     type: Date,
